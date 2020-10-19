@@ -2,15 +2,15 @@
   <div class="mod-home">
     <!--<img class="home-bg" src="../../../static/img/home-bg.png" alt="">-->
     <div class="home-bg-div">
-      <img class="home-bg-jd" src="../../../static/img/bg1.jpg" alt="">
+      <!--<img class="home-bg-jd" src="../../../static/img/bg1.jpg" alt="">-->
       <div class="home-title">
         <div>欢迎使用</div>
-        <div>金鼎清洁运输管控平台</div>
+        <div>航空协会后台管理</div>
       </div>
     </div>
-    <div class="aobo-logo">
-      <img src="../../../static/img/aobao.png" alt="">
-    </div>
+    <!--<div class="aobo-logo">-->
+      <!--<img src="../../../static/img/aobao.png" alt="">-->
+    <!--</div>-->
   </div>
 </template>
 

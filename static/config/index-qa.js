@@ -5,7 +5,7 @@
   window.SITE_CONFIG = {};
 
   // api接口请求地址
-  window.SITE_CONFIG['baseUrl'] = 'http://59.110.54.1:8080/jinding-back/';
+  window.SITE_CONFIG['baseUrl'] = 'http://123.56.130.178:8080/lxb-aviation/';
 
   // cdn地址 = 域名 + 版本号
   window.SITE_CONFIG['domain']  = './'; // 域名

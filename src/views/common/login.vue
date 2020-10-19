@@ -3,7 +3,7 @@
     <div class="site-content__wrapper">
       <div class="site-content">
         <div class="brand-info">
-          <!--<h2 class="brand-info__text">清洁运输管控平台</h2>-->
+          <h2 class="brand-info__text">航空协会后台管理</h2>
           <!--<p class="brand-info__intro">renren-fast-vue基于vue、element-ui构建开发，实现renren-fast后台管理前端功能，提供一套更优的前端解决方案。</p>-->
         </div>
         <div class="login-main">
@@ -106,7 +106,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    /*background-color: rgba(38, 50, 56, .6);*/
+    background-color: rgba(38, 50, 56, .6);
     overflow: hidden;
     &:before {
       position: fixed;
@@ -116,9 +116,8 @@
       width: 100%;
       height: 100%;
       content: "";
-      background-image: url(~@/assets/img/bg5.jpg);
-      /*background-size:  100% 100%;*/
-      background-size: 100% 100%;
+      background-image: url(~@/assets/img/login_bg.jpg);
+      background-size: cover;
     }
     .site-content__wrapper {
       position: absolute;
@@ -138,13 +137,12 @@
     }
     .brand-info {
       margin: 220px 100px 0 90px;
-      color: #000;
-      text-shadow:5px 2px 6px #fff;
+      color: #fff;
     }
     .brand-info__text {
       margin:  0 0 22px 0;
-      font-size: 50px;
-      font-weight: bold;
+      font-size: 48px;
+      font-weight: 400;
       text-transform : uppercase;
     }
     .brand-info__intro {
@@ -155,13 +153,12 @@
     }
     .login-main {
       position: absolute;
-      top: 20%;
-      right: 5%;
-      padding: 50px;
+      top: 0;
+      right: 0;
+      padding: 150px 60px 180px;
       width: 470px;
-      height: 400px;
-      background-color: rgba(255,255,255,.4);
-      border-radius: 10px;
+      min-height: 100%;
+      background-color: #fff;
     }
     .login-title {
       font-size: 16px;
