@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 style="border-bottom: 1px solid #ccc;padding-bottom: 20px;margin-bottom: 50px">查看回复</h2>
+    <h2 style="border-bottom: 1px solid #ccc;padding-bottom: 20px;margin-bottom: 50px">查看投票</h2>
     <el-table
       :data="dataList"
       border
@@ -15,17 +15,20 @@
         label="序号">
       </el-table-column>
       <el-table-column
-        prop="pname"
+        prop="userId"
         align="center"
         label="投票人">
       </el-table-column>
       <el-table-column
-        prop="name"
+        prop="type"
         align="center"
         label="投票属性">
+        <template slot-scope="scope">
+          {{ scope.row.type==0?'反对':'支持'}}
+        </template>
       </el-table-column>
       <el-table-column
-        prop="sort"
+        prop="careateDate"
         header-align="center"
         align="center"
         label="投票时间">
@@ -66,20 +69,19 @@
     },
     activated () {
       this.getDataList();
-
     },
     methods: {
       // 获取数据列表
       getDataList () {
+        this.dataForm.id = this.$route.query.id||'';
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/biz/tag/list'),
+          url: this.$http.adornUrl('/biz/votes/list'),
           method: 'get',
           params: this.$http.adornParams({
             'pageNum': this.pageIndex,
             'pageSize': this.pageSize,
-            'type': this.dataForm.type,
-            'tagName': this.dataForm.tagName,
+            'id': this.dataForm.id
           })
         }).then(({data}) => {
           if (data && data.code === 10000) {

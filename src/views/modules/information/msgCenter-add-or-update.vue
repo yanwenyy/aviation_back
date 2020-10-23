@@ -18,6 +18,18 @@
           <el-checkbox v-for="item in checkList" :disabled="look=='look'" :value="item.tagId" :label="item.tagId" :key="item.tagId">{{item.tagName}}</el-checkbox>
         </el-checkbox-group>
       </el-form-item>
+      <el-form-item label="关联分类">
+        <div  class="inline-block">
+          <div v-for="item in relationCheck">
+            <span class="inline-block">{{item.name}}:</span>
+            <div class="inline-block">
+              <el-checkbox-group v-model="dataForm.levelTwoClass">
+                <el-checkbox v-for="i in item.childClassLevel	" :disabled="look=='look'" :value="i.id" :label="i.id" :key="i.id">{{i.name}}</el-checkbox>
+              </el-checkbox-group>
+            </div>
+          </div>
+        </div>
+      </el-form-item>
       <el-form-item label="状态"  v-show="dataForm.id">
         <el-input disabled v-model="dataForm.status==0?'在线':'隐藏'" placeholder="状态"></el-input>
       </el-form-item>
@@ -38,7 +50,7 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="附件"  v-if="look=='look'">
-        <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.id)">下载附件</el-button></div>
+        <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
       </el-form-item>
       <el-form-item label="内容">
         <UEditor  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/trendmaterial/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
@@ -85,6 +97,8 @@
         dialogVisible: false,
         fileList:[],
         checkList: [],
+        relationList:[],
+        relationCheck:[],
         token:'',
         coverImgfront:'',
         dataForm: {
@@ -95,6 +109,7 @@
           createDate: '',
           content: '',
           tagEntities:[],
+          levelTwoClass:[],
         },
         value: '',
         dataRule: {
@@ -122,6 +137,7 @@
         status: '',
         createDate: '',
         content: '',
+        levelTwoClass:[],
       };
       this.fileList=[];
       // 标签列表
@@ -136,24 +152,21 @@
           this.checkList=data.data;
         }
       })
+      //关联列表
+      this.$http({
+        url: this.$http.adornUrl('/aviation/select/list'),
+        method: 'GET',
+      }).then(({data}) => {
+        if (data && data.code === 10000) {
+          this.relationCheck=data.data;
+        }
+      })
     },
     methods: {
       //下载附件
-      down (id){
-        this.$http({
-          url: this.$http.adornUrl(`/minitax/annex/list`),
-          method: 'post',
-          data: this.$http.adornData({
-            'id': id,
-            'type': 0
-          })
-        }).then(({data}) => {
-          if (data && data.code == 10000) {
-            console.log(data.data)
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
+      down (name){
+        var url='/jinding/download/'+name;
+        window.open(this.$http.adornUrl(url));
       },
       //获取富文本内容
       editorContent(modelname,index,content){
@@ -178,9 +191,11 @@
                 this.dataForm.title =datas.title;
                 this.dataForm.source = datas.source;
                 this.dataForm.content =datas.content;
+                this.dataForm.tagEntities=[];
                 for(var j=0;j<datas.tagEntities.length;j++){
                   this.dataForm.tagEntities.push(datas.tagEntities[j].tagId)
                 }
+                this.dataForm.levelTwoClass=datas.levelTwoClass&&datas.levelTwoClass.split(",")||[];
                 this.dataForm.status = datas.status;
                 this.dataForm.createDate =datas.insertTime;
                 var list=data.data.tbAnnexActions,i=0,len=list.length;
@@ -215,6 +230,7 @@
             })
           }
         }
+        // console.log(this.dataForm.tagEntities)
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({
@@ -226,6 +242,7 @@
                 'title': this.dataForm.title,
                 'source': this.dataForm.source,
                 'tagId': this.dataForm.tagEntities.join(","),
+                'levelTwoClass': this.dataForm.levelTwoClass.join(','),
                 'tbAnnexActions': tbAnnexActions,
                 'content': this.dataForm.content,
               })

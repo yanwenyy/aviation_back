@@ -2,7 +2,7 @@
   <div class="mod-user">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-button v-if="isAuth('biz:offroad:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="" type="primary" @click="addOrUpdateHandle()">新增</el-button>
       </el-form-item>
     </el-form>
     <el-table

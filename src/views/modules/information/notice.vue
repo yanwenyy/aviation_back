@@ -169,7 +169,7 @@
       //上线下线
       ifOnLine (id,status) {
         this.$http({
-          url: this.$http.adornUrl(`/biz/notice/info/${status==0?'1':'0'}/${id}`),
+          url: this.$http.adornUrl(`/biz/notice/info/${id}/${status==0?'1':'0'}`),
           method: 'GET'
         }).then(({data}) => {
           if (data && data.code === 10000) {

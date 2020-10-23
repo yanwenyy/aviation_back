@@ -8,20 +8,27 @@
         <el-input v-model="dataForm.id" placeholder="主题ID" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-input v-model="dataForm.id" placeholder="回复人" clearable></el-input>
+        <el-input v-model="dataForm.userName" placeholder="回复人" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-input v-model="dataForm.id" placeholder="回复内容" clearable></el-input>
+        <el-input v-model="dataForm.content" placeholder="回复内容" clearable></el-input>
       </el-form-item>
       <el-form-item label="回复类型:">
-        <el-select clearable  v-model="dataForm.pname" placeholder="请选择">
+        <el-select clearable  v-model="dataForm.type" placeholder="请选择">
           <el-option
             v-for="item in typeList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.name">
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
           </el-option>
         </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-date-picker
+          v-model="dataForm.createTime"
+          type="date"
+          placeholder="回复时间">
+        </el-date-picker>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
@@ -41,37 +48,40 @@
         width="50">
       </el-table-column>
       <el-table-column
-        prop="id"
+       type="index"
         header-align="center"
         align="center"
         width="80"
         label="序号">
       </el-table-column>
       <el-table-column
-        prop="pname"
+        prop="id"
         align="center"
         label="主题ID">
       </el-table-column>
       <el-table-column
-        prop="sort"
+        prop="userName"
         header-align="center"
         align="center"
         label="回复人">
       </el-table-column>
       <el-table-column
-        prop="sort"
+        prop="content"
         header-align="center"
         align="center"
         label="回复内容">
       </el-table-column>
       <el-table-column
-        prop="sort"
+        prop="level"
         header-align="center"
         align="center"
         label="回复类型">
+        <template slot-scope="scope">
+          {{ scope.row.level==1?'留言':'回复'}}
+        </template>
       </el-table-column>
       <el-table-column
-        prop="sort"
+        prop="careateDate"
         header-align="center"
         align="center"
         label="回复时间">
@@ -83,7 +93,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button v-if="" type="text" size="small" @click="addOrUpdateHandle(scope.row.tagId,'look')">查看</el-button>
+          <el-button v-if="" type="text" size="small" @click="addOrUpdateHandle(scope.row.id,'look')">查看</el-button>
           <el-button v-if="" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
@@ -109,11 +119,22 @@
       return {
         path:window.SITE_CONFIG.cdnUrl,
         dataForm: {
+          id: '',
           type: '',
-          tagName: '',
+          content:'',
+          userName: '',
+          createTime:'',
         },
-        typeList:[],
-        twoTypeList:[],
+        typeList:[
+          {
+            label:'留言',
+            value:'1'
+          },
+          {
+            label:'回复',
+            value:'2'
+          }
+        ],
         dataList: [],
         pageIndex: 1,
         pageSize: 10,
@@ -129,45 +150,39 @@
     },
     activated () {
       this.getDataList();
-      //一级分类列表
-      this.$http({
-        url: this.$http.adornUrl('/biz/classlevel/select/list'),
-        method: 'GET',
-        params: this.$http.adornParams({ 'level': 1 })
-      }).then(({data}) => {
-        this.typeList = data.data
-      });
-      //二级分类列表
-      this.$http({
-        url: this.$http.adornUrl('/biz/classlevel/select/list'),
-        method: 'GET',
-        params: this.$http.adornParams({ 'level': 2 })
-      }).then(({data}) => {
-        this.twoTypeList = data.data
-      })
     },
     methods: {
       //重置搜索条件
       resetForm(){
         this.dataForm={
-          id:'',
-          name:'',
-          level:'',
+          id: '',
+          type: '',
+          content:'',
+          userName: '',
           createTime:'',
         }
         this.$refs.child.reset()
       },
       // 获取数据列表
       getDataList () {
+        var createTimeStart='',createTimeEnd=''
+        if(this.dataForm.createTime!=undefined&&this.dataForm.createTime!=""&&this.dataForm.createTime!=null&&this.dataForm.createTime.length!=0){
+          createTimeStart=this.dataForm.createTime[0]
+          createTimeEnd=this.dataForm.createTime[1]
+        }
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/biz/tag/list'),
+          url: this.$http.adornUrl('/biz/discuss/list'),
           method: 'get',
           params: this.$http.adornParams({
             'pageNum': this.pageIndex,
             'pageSize': this.pageSize,
+            'id': this.dataForm.id,
             'type': this.dataForm.type,
-            'tagName': this.dataForm.tagName,
+            'content': this.dataForm.content,
+            'userName': this.dataForm.userName,
+            'startTime': createTimeStart,
+            'endTime': createTimeEnd,
           })
         }).then(({data}) => {
           if (data && data.code === 10000) {
@@ -204,7 +219,7 @@
       },
       // 删除
       deleteHandle (id) {
-        var userIds = id ? [id] : this.dataListSelections.map(item => {
+        var id = id ? [id] : this.dataListSelections.map(item => {
           return item.id
         })
         this.$confirm(`确认删除该条数据吗?删除后数据不可恢复`, '提示', {
@@ -213,8 +228,9 @@
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/biz/classlevel/delete/'+id),
-            method: 'GET',
+            url: this.$http.adornUrl('/biz/discuss/delete'),
+            method: 'POST',
+            data: this.$http.adornData(id, false)
           }).then(({data}) => {
             if (data && data.code === 10000) {
               this.$message({

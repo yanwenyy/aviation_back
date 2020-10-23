@@ -44,7 +44,6 @@
       this.editor = UE.getEditor(this.id,{
         serverUrl: window.SITE_CONFIG['baseUrl']+"/ueditor/exec?token="+_this.$cookie.get('token')
       });
-
       this.editor.ready(function() {
         if(_this.val!=null&&_this.val!=undefined){
           // _this.$emit('ready', _this.editor);

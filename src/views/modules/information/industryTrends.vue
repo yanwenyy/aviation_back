@@ -79,12 +79,6 @@
         label="来源">
       </el-table-column>
       <el-table-column
-        prop="tagNames"
-        header-align="center"
-        align="center"
-        label="标签">
-      </el-table-column>
-      <el-table-column
         prop="ifRecom"
         header-align="center"
         align="center"

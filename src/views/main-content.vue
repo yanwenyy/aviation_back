@@ -45,7 +45,11 @@
 <script>
   import { isURL } from '@/utils/validate'
   export default {
-    inject: ['refresh'],
+    provide(){
+      return{
+        removeTabHandle:this.removeTabHandle
+      }
+    },
     data () {
       return {
       }

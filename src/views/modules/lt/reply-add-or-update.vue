@@ -8,13 +8,13 @@
         <div class="city-view-title">主题信息</div>
         <div class="city-view-box">
           <el-form-item label="板块"  v-show="dataForm.id">
-            <el-input disabled v-model="dataForm.tagName" placeholder="ID"></el-input>
+            <el-input disabled v-model="dataForm.name" placeholder="ID"></el-input>
           </el-form-item>
           <el-form-item label="子板块"  v-show="dataForm.id">
-            <el-input disabled v-model="dataForm.tagName" placeholder="ID"></el-input>
+            <el-input disabled v-model="dataForm.childName" placeholder="ID"></el-input>
           </el-form-item>
           <el-form-item label="主题ID"  v-show="dataForm.id">
-            <el-input disabled v-model="dataForm.tagName" placeholder="ID"></el-input>
+            <el-input disabled v-model="dataForm.id" placeholder="ID"></el-input>
           </el-form-item>
         </div>
       </div>
@@ -22,22 +22,26 @@
         <div class="city-view-title">回复信息</div>
         <div class="city-view-box">
           <el-form-item label="回复人"  v-show="dataForm.id">
-            <el-input disabled v-model="dataForm.tagName" placeholder="回复人"></el-input>
+            <el-input disabled v-model="dataForm.userName" placeholder="回复人"></el-input>
           </el-form-item>
           <el-form-item label="回复类型"  v-show="dataForm.id">
-            <el-input disabled v-model="dataForm.tagName" placeholder="回复人"></el-input>
+            <el-input disabled v-model="dataForm.level=='1'?'留言':'回复'" placeholder="回复类型"></el-input>
           </el-form-item>
           <el-form-item label="发布日期"  v-show="dataForm.id">
-            <el-input disabled v-model="dataForm.tagName" placeholder="回复人"></el-input>
+            <el-input disabled v-model="dataForm.careateDate" placeholder="发布日期"></el-input>
           </el-form-item>
           <el-form-item label="回复内容"  v-show="dataForm.id">
-            <el-input class="el-input" disabled type="textarea" v-model="dataForm.tagName" placeholder="回复人"></el-input>
+            <el-input class="el-input" disabled type="textarea" v-model="dataForm.content" placeholder="回复人"></el-input>
           </el-form-item>
           <el-form-item label="回复图片"  v-show="dataForm.id">
-            <img class="hf-img" src="" alt="">
+            <div class="inline-block box-img" v-if="imgList&&imgList!=''">
+              <el-image v-for="(item,index ) in imgList"  :key="index" class="look-img" title="点击查看大图"
+                        :src="item.indexOf('http')!=-1?item:imgUrlfront+item">
+              </el-image>
+            </div>
           </el-form-item>
           <el-form-item label="回复附件"  v-show="dataForm.id">
-            <div class="inline-block">无人机适航审定首次审查会顺利召开</div> <span class="downFj inline-block">下载</span>
+            <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
           </el-form-item>
         </div>
       </div>
@@ -57,67 +61,19 @@
       UEditor
     },
     data () {
-      var validateInteger = (rule, value, callback) => {
-        if(value===''){
-          callback(new Error('不能为空'))
-        }else if (!isInteger(value)) {
-          callback(new Error('格式不正确'))
-        } else {
-          callback()
-        }
-      };
-      var validateMoney = (rule, value, callback) => {
-        if(!value){
-          callback(new Error('不能为空'))
-        }else if (!/(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/.test(value)) {
-          callback(new Error('金额格式不正确'))
-        } else {
-          callback()
-        }
-      };
       return {
         look:'',
         visible: false,
+        imgUrlfront:'',
         dialogImageUrl: '',
         dialogVisible: false,
         fileList:[],
-        checkList: ['选中且禁用','复选框 A'],
-        typeList:[
-          {
-            label:'行业动态',
-            value:'1'
-          },
-          {
-            label:'资料中心',
-            value:'2'
-          },
-          {
-            label:'通知公告',
-            value:'3'
-          }
-        ],
-        token:'',
-        imgUrlfront:'',
         dataForm: {
-          id: 0,
-          tagName: '',
-          type: '',
-          fj:'',
+          id: '',
         },
+        imgList:[],
         value: '',
         dataRule: {
-          dataTime: [
-            { required: true, message: '数据时间不能为空', trigger: 'blur' }
-          ],
-          dataAmount: [
-            { required: true,validator: validateInteger, trigger: 'blur' }
-          ],
-          effectiveData: [
-            { required: true, validator: validateInteger,trigger: 'blur' }
-          ],
-          todayConsumeMoney: [
-            { required: true, validator: validateMoney, trigger: 'blur' }
-          ],
         }
       }
     },
@@ -126,6 +82,11 @@
       this.dataForm.tagName = "";
     },
     methods: {
+      //下载附件
+      down (name){
+        var url='/jinding/download/'+name;
+        window.open(this.$http.adornUrl(url));
+      },
       //获取富文本内容
       editorContent(modelname,index,content){
         console.log(modelname)
@@ -135,21 +96,32 @@
         console.log(id)
         this.dataForm.id = id||0;
         this.look=look;
-        this.token=this.$cookie.get('token');
         this.imgUrlfront=this.$http.adornUrl('/jinding/showImg/');
         this.visible = true;
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields();
           if (this.dataForm.id) {
             this.$http({
-              url: this.$http.adornUrl(`/biz/tag/info/${this.dataForm.id}`),
+              url: this.$http.adornUrl(`/biz/discuss/info/${this.dataForm.id}`),
               method: 'get',
               params: this.$http.adornParams()
             }).then(({data}) => {
               if (data && data.code === 10000) {
                 var datas=data.data;
-                this.dataForm.tagName =datas.tagName;
-                this.dataForm.type = datas.type;
+                this.dataForm =datas;
+                this.imgList=datas.img.split(",")||[];
+                console.log(this.imgList)
+                var list=data.data.tbAnnexActions,i=0,len=list.length;
+                this.fileList=[];
+                if (len!= 0) {
+                  for (;i<len;i++) {
+                    this.fileList.push({
+                      data: list[i].fileRealName,
+                      name: list[i].fileOriginalName,
+                      id: list[i].id
+                    })
+                  }
+                }
               }
             })
           }else{

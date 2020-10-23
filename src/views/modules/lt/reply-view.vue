@@ -3,18 +3,18 @@
     <h2 style="border-bottom: 1px solid #ccc;padding-bottom: 20px;margin-bottom: 50px">查看回复</h2>
     <el-form label-position="left" label-width="120px" :model="dataForm" :rules="dataRule" ref="dataForm">
       <div class="city-view-group">
-        <div class="city-view-title">全部回复(3)</div>
+        <div class="city-view-title">全部回复({{list.length}})</div>
         <div class="city-view-box">
-         <div  class="reply-list">
-           <div class="reply-name">刘德华 <span class="lz">楼主</span></div>
-           <div class="reply-date">8小时前</div>
-           <div class="reply-reply-msg box-sizing"><span class="reply-name">@刘德华:</span>最早发布的内容刘德华最早发布的内容刘德华最早发布的内容刘德华最早发布的内容刘德华最早发布的内容的内容刘德华最早发布的内容刘德华最早发布的内容的内容刘德华最早发布的内容刘德华最早发</div>
+         <div v-for="item in list"  class="reply-list">
+           <div class="reply-name">{{item.type=='1'?'管理员':item.userName}} <span v-show="item.author=='0'" class="lz">楼主</span></div>
+           <div class="reply-date">{{showtime(item.careateDate)}}</div>
+           <div class="reply-reply-msg box-sizing"><span class="reply-name">@{{item.ptype=='1'?'管理员':item.replyUserName}}:</span>{{item.pcontent}}</div>
            <div class="reply-msg">
-             回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容回复的内容
+             {{item.content}}
            </div>
            <div class="reply-btn">
-             <span class="pointer" @click="dialogFormVisible=true">回复</span>
-             <span class="pointer">删除</span>
+             <span class="pointer" @click="dialogFormVisible=true,dataForm.replyId=item.id">回复</span>
+             <span class="pointer" @click="del(item.id)">删除</span>
            </div>
          </div>
         </div>
@@ -26,7 +26,7 @@
     <el-dialog title="管理员回复" :visible.sync="dialogFormVisible">
       <el-form>
         <el-form-item label="回复">
-          <el-input class="el-input" type="textarea" v-model="dataForm.tagName" placeholder="请输入您的回复"></el-input>
+          <el-input class="el-input" type="textarea" v-model="dataForm.content" placeholder="请输入您的回复"></el-input>
         </el-form-item>
         <el-form-item label="上传附件" >
           <el-upload
@@ -42,23 +42,18 @@
           </el-upload>
         </el-form-item>
         <el-form-item label="上传图片">
-          <div class="inline-block box-img" v-if="dataForm.imgUrl&&dataForm.imgUrl!=''">
-            <el-image class="look-img" title="点击查看大图"
-                      :src="dataForm.imgUrl.indexOf('http')!=-1?dataForm.imgUrl:imgUrlfront+dataForm.imgUrl" :preview-src-list="srcList" >
-            </el-image>
-            <i class="el-icon-error box-img-del" @click="dataForm.imgUrl=''"></i>
-          </div>
-          <div class="inline-block box-img"  v-if="dataForm.imgUrl==''||!dataForm.imgUrl">
+          <div class="inline-block box-img"  v-if="dataForm.imgList==''||!dataForm.imgList">
             <el-upload :disabled="look=='look'"
-                       :show-file-list="!dataForm.id&& dataForm.imgUrl==''"
+                       :limit="3"
                        :headers="{'token':token}"
                        :action="this.$http.adornUrl('/jinding/file/upload')"
                        :on-success="handleChange2"
                        :on-error="handleChange2"
                        list-type="picture-card"
+                       :file-list="imgList"
                        :on-remove="handleRemove2">
               <i class="el-icon-plus"></i>
-              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+              <div slot="tip" class="el-upload__tip">最多上传3张，且不超过500kb</div>
             </el-upload>
           </div>
         </el-form-item>
@@ -66,6 +61,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">关闭</el-button>
+        <el-button type="primary" @click="subReply()">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -73,6 +69,7 @@
 <script>
   import { isInteger } from '@/utils/validate'
   export default {
+    inject:['removeTabHandle'],
     data () {
       var validateInteger = (rule, value, callback) => {
         if(value===''){
@@ -97,6 +94,7 @@
         visible: false,
         dialogFormVisible: false,
         fileList:[],
+        imgList:[],
         checkList: ['选中且禁用','复选框 A'],
         typeList:[
           {
@@ -114,11 +112,11 @@
         ],
         token:'',
         imgUrlfront:'',
+        list:[],
         dataForm: {
-          id: 0,
-          tagName: '',
-          type: '',
-          fj:'',
+          id: '',
+          replyId:'',
+          content:''
         },
         value: '',
         dataRule: {
@@ -138,17 +136,91 @@
       }
     },
     created(){
-      this.dataForm.type = "";
-      this.dataForm.tagName = "";
+      this.init(this.$route.query.id)
     },
     methods: {
+      //删除回复
+      del(id){
+        this.$confirm(`确认删除该条数据吗?删除后数据不可恢复`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl(`/biz/discuss/del/${id}`),
+            method: 'GET',
+          }).then(({data}) => {
+            if (data && data.code === 10000) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500,
+                onClose: () => {
+                  this.init(this.dataForm.id)
+                }
+              })
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        }).catch(() => {})
+        // '<img src='+  window.SITE_CONFIG['baseUrl']+'/jinding/showImg/'+ data.data+'" title="'+data.title+'" alt="'+data.original+'" width="100%">'
+      },
+      //提交回复
+      subReply(){
+        var tbAnnexActions=this.fileList!=''?[]:'',i=0,list=this.fileList,len=list.length;
+        if(list!=''){
+          for(;i<len;i++){
+            if(list[i].response){
+              tbAnnexActions.push({
+                fileOriginalName:list[i].name,
+                fileRealName:list[i].response.data
+              })
+            }else{
+              tbAnnexActions.push({
+                fileOriginalName:list[i].name,
+                fileRealName:list[i].data
+              })
+            }
+          }
+        }
+        var img='',imgList=this.imgList,j=0,jen=imgList.length;
+        if(imgList!=''){
+          for(;j<jen;j++){
+            img+=imgList[j].response.data;
+          }
+        }
+        this.$http({
+          url: this.$http.adornUrl(`/biz/discuss/save`),
+          method: 'post',
+          data: this.$http.adornData({
+            'id': this.dataForm.replyId || undefined,
+            'content': this.dataForm.content,
+            'img': img,
+            'tbAnnexActions': tbAnnexActions,
+          })
+        }).then(({data}) => {
+          if (data && data.code == 10000) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1500,
+              onClose: () => {
+                this.dialogFormVisible = false;
+                this.init(this.dataForm.id)
+              }
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      },
       //获取富文本内容
       editorContent(modelname,index,content){
         console.log(modelname)
         this.dataForm.content=content
       },
       init (id,look) {
-        console.log(id)
         this.dataForm.id = id||0;
         this.look=look;
         this.token=this.$cookie.get('token');
@@ -158,14 +230,15 @@
           this.$refs['dataForm'].resetFields();
           if (this.dataForm.id) {
             this.$http({
-              url: this.$http.adornUrl(`/biz/tag/info/${this.dataForm.id}`),
+              url: this.$http.adornUrl(`/biz/discuss/discuss/list`),
               method: 'get',
-              params: this.$http.adornParams()
+              params: this.$http.adornParams({
+                id:this.dataForm.id
+              })
             }).then(({data}) => {
               if (data && data.code === 10000) {
                 var datas=data.data;
-                this.dataForm.tagName =datas.tagName;
-                this.dataForm.type = datas.type;
+                this.list=datas;
               }
             })
           }else{
@@ -205,7 +278,7 @@
         })
       },
       handleRemove(file, fileList) {
-        this.dataForm.fj='';
+        this.fileList=fileList;
       },
       //上传图片
       handleChange(response, file, fileList){
@@ -216,7 +289,7 @@
             type: 'success',
             duration: 1500,
             onClose: () => {
-              this.dataForm.fj=response.data;
+              this.fileList=fileList;
             }
           })
         } else {
@@ -224,7 +297,7 @@
         }
       },
       handleRemove2(file, fileList) {
-        this.dataForm.imgUrl='';
+        this.imgList=fileList;
       },
       //上传图片
       handleChange2(response, file, fileList){
@@ -234,17 +307,64 @@
             type: 'success',
             duration: 1500,
             onClose: () => {
-              this.dataForm.imgUrl=response.data;
+              this.imgList=fileList;
             }
           })
         } else {
           this.$message.error(response.msg)
         }
       },
+      showtime(time) {
+        let date =
+          typeof time === "number"
+            ? new Date(time)
+            : new Date((time || "").replace(/-/g, "/"));
+        let diff = (new Date().getTime() - date.getTime()) / 1000;
+        let dayDiff = Math.floor(diff / 86400);
+
+        let isValidDate =
+          Object.prototype.toString.call(date) === "[object Date]" &&
+          !isNaN(date.getTime());
+
+        if (!isValidDate) {
+          window.console.error("不是有效日期格式");
+        }
+        const formatDate = function(date) {
+          let today = new Date(date);
+          let year = today.getFullYear();
+          let month = ("0" + (today.getMonth() + 1)).slice(-2);
+          let day = ("0" + today.getDate()).slice(-2);
+          let hour = today.getHours();
+          let minute = today.getMinutes();
+          let second = today.getSeconds();
+          return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        };
+        //小于0或者大于等于31显示原时间
+        if (isNaN(dayDiff) || dayDiff < 0 || dayDiff >= 31) {
+          return formatDate(date);
+        }
+        return (
+          (dayDiff === 0 &&
+            ((diff < 60 && "刚刚") ||
+              (diff < 120 && "1分钟前") ||
+              (diff < 3600 && Math.floor(diff / 60) + "分钟前") ||
+              (diff < 7200 && "1小时前") ||
+              (diff < 86400 && Math.floor(diff / 3600) + "小时前"))) ||
+          (dayDiff === 1 && "昨天") ||
+          (dayDiff < 7 && dayDiff + "天前") ||
+          (dayDiff < 31 && Math.ceil(dayDiff / 7) + "周前")
+        );
+      },
+      closePage:function () {
+        this.removeTabHandle(this.$store.state.common.mainTabsActiveName)
+      },
     }
   }
 </script>
 <style>
+  .reply-list{
+    margin-bottom: 20px;
+  }
   .reply-btn{
     margin-top: 20px;
     color:#00a0e9;

@@ -40,7 +40,7 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="附件"  v-if="look=='look'">
-        <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.id)">下载附件</el-button></div>
+        <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
       </el-form-item>
       <el-form-item label="内容">
         <UEditor  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/notice/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
@@ -138,21 +138,10 @@
     },
     methods: {
       //下载附件
-      down (id){
-        this.$http({
-          url: this.$http.adornUrl(`/minitax/annex/list`),
-          method: 'post',
-          data: this.$http.adornData({
-            'id': id,
-            'type': 0
-          })
-        }).then(({data}) => {
-          if (data && data.code == 10000) {
-            console.log(data.data)
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
+      down (name){
+        console.log(name)
+        var url='/jinding/download/'+name;
+        window.open(this.$http.adornUrl(url));
       },
       //获取富文本内容
       editorContent(modelname,index,content){
@@ -177,9 +166,12 @@
                 var datas=data.data;
                 this.dataForm.title =datas.title;
                 this.dataForm.content =datas.content;
-                for(var j=0;j<datas.tagEntities.length;j++){
-                  this.dataForm.tagEntities.push(datas.tagEntities[j].tagId)
-                }
+                this.dataForm.tagId =String(datas.tagId);
+                // if(datas.tagEntities){
+                //   for(var j=0;j<datas.tagEntities.length;j++){
+                //     this.dataForm.tagEntities.push(datas.tagEntities[j].tagId)
+                //   }
+                // }
                 this.dataForm.status = datas.status;
                 this.dataForm.createDate =datas.insertTime;
                 var list=data.data.tbAnnexActions,i=0,len=list.length;

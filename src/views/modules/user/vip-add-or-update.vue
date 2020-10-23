@@ -8,6 +8,9 @@
       <el-form-item label="ID"  v-show="dataForm.id">
         <el-input disabled v-model="dataForm.id" placeholder="ID"></el-input>
       </el-form-item>
+      <el-form-item label="用户名">
+        <el-input :disabled="look=='look'" v-model="dataForm.userName" placeholder="用户名"></el-input>
+      </el-form-item>
       <el-form-item label="单位/个人真实名称">
         <el-input :disabled="look=='look'" v-model="dataForm.nameDes" placeholder="单位/个人真实名称"></el-input>
       </el-form-item>
@@ -118,6 +121,7 @@
         logofront:'',
         dataForm: {
           id: '',
+          userName:'',
           nameDes: '',
           contact: '',
           phone: '',
@@ -144,6 +148,7 @@
     mounted(){
       this.dataForm={
         id: '',
+        userName:'',
         nameDes: '',
         contact: '',
         phone: '',
@@ -164,6 +169,21 @@
         this.dataForm.content=content
       },
       init (id,look) {
+        this.dataForm={
+          id: '',
+          userName:'',
+          nameDes: '',
+          contact: '',
+          phone: '',
+          userRole: '',
+          password: '',
+          passwordConfirm: '',
+          state: '',
+          ifShow: '',
+          insertTime: '',
+          logo: '',
+          content: ''
+          };
         this.dataForm.id = id||0;
         this.look=look||'';
         this.token=this.$cookie.get('token');
@@ -179,6 +199,7 @@
             }).then(({data}) => {
               if (data && data.code === 10000) {
                 var datas=data.data;
+                this.dataForm.userName =datas.userName;
                 this.dataForm.nameDes =datas.nameDes;
                 this.dataForm.contact = datas.contact;
                 this.dataForm.phone =datas.phone;
@@ -205,6 +226,7 @@
                 method: 'post',
                 data: this.$http.adornData({
                   'id': this.dataForm.id || undefined,
+                  'userName': this.dataForm.userName,
                   'nameDes': this.dataForm.nameDes,
                   'contact': this.dataForm.contact,
                   'phone': this.dataForm.phone,
@@ -258,6 +280,10 @@
   }
 </script>
 <style scoped>
+  .look-img{
+    width: 150px;
+    height: 150px;
+  }
   >>> .el-form-item__label{
     width: 150px!important;
   }

@@ -62,7 +62,7 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="附件"  v-if="look=='look'">
-          <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.id)">下载附件</el-button></div>
+          <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
       </el-form-item>
       <el-form-item label="内容">
         <UEditor  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/trendmaterial/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
@@ -167,27 +167,26 @@
     },
     methods: {
       //下载附件
-      down (id){
-        this.$http({
-          url: this.$http.adornUrl(`/minitax/annex/list`),
-          method: 'post',
-          data: this.$http.adornData({
-            'id': id,
-            'type': 0
-          })
-        }).then(({data}) => {
-          if (data && data.code == 10000) {
-            console.log(data.data)
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
+      down (name){
+        var url='/jinding/download/'+name;
+        window.open(this.$http.adornUrl(url));
       },
       //获取富文本内容
       editorContent(modelname,index,content){
         this.dataForm.content=content
       },
       init (id,look) {
+        this.dataForm={
+          id: '',
+          title: '',
+          source: '',
+          tagEntities:[],
+          coverImg: '',
+          ifRecom: '',
+          status: '',
+          createDate: '',
+          content: '',
+        };
         this.dataForm.id = id||0;
         this.look=look;
         this.token=this.$cookie.get('token');

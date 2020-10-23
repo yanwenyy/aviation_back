@@ -54,7 +54,7 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="附件"  v-if="look=='look'">
-        <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.id)">下载附件</el-button></div>
+        <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -146,6 +146,11 @@
       });
     },
     methods: {
+      //下载附件
+      down (name){
+        var url='/jinding/download/'+name;
+        window.open(this.$http.adornUrl(url));
+      },
       //获取子版块下拉列表
       getChild(){
         if(this.dataForm.jobModelId!=''){
@@ -170,6 +175,7 @@
         console.log(id)
         this.dataForm.id = id||0;
         this.look=look;
+        this.token=this.$cookie.get('token');
         this.visible = true;
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields();
