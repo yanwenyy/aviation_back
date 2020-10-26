@@ -199,7 +199,7 @@
         }
       }
     },
-    created(){
+    mounted(){
       this.dataForm={
         id: '',
         pid: '',
