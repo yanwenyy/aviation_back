@@ -3,7 +3,7 @@
     <div class="site-content__wrapper">
       <div class="site-content">
         <div class="brand-info">
-          <h2 class="brand-info__text">航空协会后台管理</h2>
+          <h2 class="brand-info__text">电动航空适航标准专业委员会后台管理</h2>
           <!--<p class="brand-info__intro">renren-fast-vue基于vue、element-ui构建开发，实现renren-fast后台管理前端功能，提供一套更优的前端解决方案。</p>-->
         </div>
         <div class="login-main">

@@ -5,7 +5,7 @@
       <!--<img class="home-bg-jd" src="../../../static/img/bg1.jpg" alt="">-->
       <div class="home-title">
         <div>欢迎使用</div>
-        <div>航空协会后台管理</div>
+        <div>电动航空适航标准专业委员会后台管理</div>
       </div>
     </div>
     <!--<div class="aobo-logo">-->
