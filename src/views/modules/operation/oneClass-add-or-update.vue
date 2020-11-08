@@ -9,6 +9,7 @@
       </el-form-item>
       <el-form-item label="请输入排序">
         <el-input :disabled="look=='look'" v-model="dataForm.sort" placeholder="请输入排序"></el-input>
+        <p class="input-msg">请填写数字，数字越大越靠前</p>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -111,6 +112,7 @@
     font-size: 12px;
     color:#999;
     margin-top: 0;
+    margin-left: 70px;
   }
 </style>
 

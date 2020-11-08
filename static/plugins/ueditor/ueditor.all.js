@@ -23973,7 +23973,9 @@
         },
 
         'contentchange': function () {
-
+          if (!me.getOpt('enableAutoSave')) {
+            return;
+          }
           if ( !saveKey ) {
             return;
           }
@@ -24462,7 +24464,6 @@
     var me = this,
       isLoaded = false,
       containerBtn;
-
     function initUploadBtn(){
       var w = containerBtn.offsetWidth || 20,
         h = containerBtn.offsetHeight || 20,
@@ -24507,6 +24508,7 @@
          * @author Guoqing
          */
         domUtils.on(input, 'change', function() {
+          console.log(input)
           if(!input.value) return;
           var loadingId = 'loading_' + (+new Date()).toString(36);
           var imageActionUrl = me.getActionUrl(me.getOpt('imageActionName'));
@@ -24665,6 +24667,7 @@
           clearTimeout(stateTimer);
           stateTimer = setTimeout(function() {
             var state = me.queryCommandState('simpleupload');
+            // console.log(state)
             if (state == -1) {
               input.disabled = 'disabled';
             } else {

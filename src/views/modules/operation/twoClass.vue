@@ -80,6 +80,7 @@
         <template slot-scope="scope">
           <el-button v-if="" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button v-if="" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button v-if="" type="text" size="small" @click="ifOnLine(scope.row.id,scope.row.status)">{{scope.row.status==0?'下线':'上线'}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -217,6 +218,26 @@
           })
         }).catch(() => {})
       },
+      //上线下线
+      ifOnLine (id,status) {
+        this.$http({
+          url: this.$http.adornUrl(`/biz/classlevel/info/${status==0?'1':'0'}/${id}`),
+          method: 'GET'
+        }).then(({data}) => {
+          if (data && data.code === 10000) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1500,
+              onClose: () => {
+                this.getDataList()
+              }
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      }
     }
   }
 </script>

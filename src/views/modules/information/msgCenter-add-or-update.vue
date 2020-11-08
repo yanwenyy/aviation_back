@@ -11,7 +11,7 @@
         <el-input :disabled="look=='look'" v-model="dataForm.title" placeholder="标题"></el-input>
       </el-form-item>
       <el-form-item label="来源">
-        <el-input :disabled="look=='look'" v-model="dataForm.source" placeholder="标题"></el-input>
+        <el-input :disabled="look=='look'" v-model="dataForm.source" placeholder="来源"></el-input>
       </el-form-item>
       <el-form-item label="资料中心标签">
         <el-checkbox-group v-model="dataForm.tagEntities">
@@ -50,7 +50,7 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="附件"  v-if="look=='look'">
-        <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
+        <div v-for="item in fileList"><span class="inline-block fj-name">{{item.name}} </span><el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
       </el-form-item>
       <el-form-item label="内容">
         <UEditor  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/trendmaterial/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
@@ -287,12 +287,20 @@
   }
 </script>
 <style scoped>
+  .fj-name{
+    width: 60%;
+    word-break: break-all;
+    margin-bottom: 20px;
+  }
   .look-img{
     width: 200px;
     height: 200px;
   }
   >>> .el-form-item__label{
     width: 150px!important;
+  }
+  >>> .el-form-item__content{
+    margin-left: 150px!important;
   }
   >>> .el-input{
     width: 90%;

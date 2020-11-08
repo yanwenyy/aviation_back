@@ -49,6 +49,15 @@
         label="标签名称">
       </el-table-column>
       <el-table-column
+        prop="status"
+        header-align="center"
+        align="center"
+        label="状态">
+        <template slot-scope="scope">
+          {{ scope.row.status==0?'在线':'隐藏'}}
+        </template>
+      </el-table-column>
+      <el-table-column
         prop="insertTime"
         header-align="center"
         align="center"
@@ -179,9 +188,9 @@
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/biz/banner/delete'),
-            method: 'post',
-            data: this.$http.adornData(userIds, false)
+            url: this.$http.adornUrl(`/biz/tag/delete/${id}/0`),
+            method: 'GET',
+            // data: this.$http.adornData(userIds, false)
           }).then(({data}) => {
             if (data && data.code === 10000) {
               this.$message({
@@ -192,6 +201,31 @@
                   this.getDataList()
                 }
               })
+            }else if(data.msg.indexOf("关联了该标签")!=-1){
+              this.$confirm(data.msg, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                this.$http({
+                  url: this.$http.adornUrl(`/biz/tag/delete/${id}/1`),
+                  method: 'GET',
+                  // data: this.$http.adornData(userIds, false)
+                }).then(({data}) => {
+                  if (data && data.code === 10000) {
+                    this.$message({
+                      message: '操作成功',
+                      type: 'success',
+                      duration: 1500,
+                      onClose: () => {
+                        this.getDataList()
+                      }
+                    })
+                  }else {
+                    this.$message.error(data.msg)
+                  }
+                })
+              }).catch(() => {})
             } else {
               this.$message.error(data.msg)
             }

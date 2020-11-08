@@ -11,7 +11,7 @@
         <el-input :disabled="look=='look'" v-model="dataForm.title" placeholder="标题"></el-input>
       </el-form-item>
       <el-form-item label="来源">
-        <el-input :disabled="look=='look'" v-model="dataForm.source" placeholder="标题"></el-input>
+        <el-input :disabled="look=='look'" v-model="dataForm.source" placeholder="来源"></el-input>
       </el-form-item>
       <el-form-item label="行业动态标签">
         <el-checkbox-group v-model="dataForm.tagEntities">
@@ -23,7 +23,7 @@
           <el-image class="look-img" title="点击查看大图"
                     :src="dataForm.coverImg.indexOf('http')!=-1?dataForm.coverImg:coverImgfront+dataForm.coverImg" >
           </el-image>
-          <i class="el-icon-error box-img-del" @click="dataForm.coverImg=''"></i>
+          <i v-show="look!='look'" class="el-icon-error box-img-del" @click="dataForm.coverImg='',dataForm.ifRecom=''"></i>
         </div>
         <div class="inline-block box-img"  v-if="dataForm.coverImg==''||!dataForm.coverImg">
           <el-upload :disabled="look=='look'"
@@ -39,8 +39,8 @@
         </div>
       </el-form-item>
       <el-form-item label="首页图片位推荐">
-        <el-radio  :disabled="look=='look'" v-model="dataForm.ifRecom" label="0">推荐</el-radio>
-        <el-radio  :disabled="look=='look'" v-model="dataForm.ifRecom" label="1">不推荐</el-radio>
+        <el-radio  :disabled="look=='look'||dataForm.coverImg==''" v-model="dataForm.ifRecom" label="1">推荐</el-radio>
+        <el-radio  :disabled="look=='look'" v-model="dataForm.ifRecom" label="0">不推荐</el-radio>
       </el-form-item>
       <el-form-item label="状态"  v-show="dataForm.id">
         <el-input disabled v-model="dataForm.status==0?'在线':'隐藏'" placeholder="状态"></el-input>
@@ -62,10 +62,10 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="附件"  v-if="look=='look'">
-          <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
+        <div v-for="item in fileList"><span class="inline-block fj-name">{{item.name}} </span><el-button type="warning" @click="down(item.data,item.name)">下载附件</el-button></div>
       </el-form-item>
       <el-form-item label="内容">
-        <UEditor  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/trendmaterial/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
+        <UEditor :key="key"  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/trendmaterial/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
         <div class="inline-block html-div" v-html="dataForm.content"  v-if="look=='look'"></div>
       </el-form-item>
     </el-form>
@@ -78,7 +78,7 @@
 
 <script>
   import UEditor from '@/components/ueditor/ueditor.vue'
-  import { isInteger } from '@/utils/validate'
+  import { isInteger} from '@/utils/validate'
   export default {
     components: {
       UEditor
@@ -103,6 +103,7 @@
         }
       };
       return {
+        key: 0,
         look:'',
         visible: false,
         dialogImageUrl: '',
@@ -167,15 +168,25 @@
     },
     methods: {
       //下载附件
-      down (name){
+      down (name,realName){
         var url='/jinding/download/'+name;
         window.open(this.$http.adornUrl(url));
+        // let elink = document.createElement("a");
+        // elink.download = decodeURI(realName);  ;
+        // elink.style.display = "none";
+        // elink.href = this.$http.adornUrl(url);
+        // document.body.appendChild(elink);
+        // elink.click();
+        // console.log(elink)
+        // URL.revokeObjectURL(elink.href); // 释放URL 对象
+        // document.body.removeChild(elink);
       },
       //获取富文本内容
       editorContent(modelname,index,content){
         this.dataForm.content=content
       },
       init (id,look) {
+        this.key=this.key+1;
         this.dataForm={
           id: '',
           title: '',
@@ -187,6 +198,7 @@
           createDate: '',
           content: '',
         };
+        this.fileList=[];
         this.dataForm.id = id||0;
         this.look=look;
         this.token=this.$cookie.get('token');
@@ -256,7 +268,7 @@
                 'source': this.dataForm.source,
                 'tagId': this.dataForm.tagEntities.join(","),
                 'coverImg': this.dataForm.coverImg,
-                'ifRecom': this.dataForm.ifRecom,
+                'ifRecom': this.dataForm.coverImg!=''?this.dataForm.ifRecom:'0',
                 'tbAnnexActions': tbAnnexActions,
                 'content': this.dataForm.content,
               })
@@ -299,6 +311,7 @@
       },
       handleRemove2(file, fileList) {
         this.dataForm.coverImg='';
+        this.dataForm.ifRecom='0';
       },
       //上传图片
       handleChange2(response, file, fileList){
@@ -319,12 +332,20 @@
   }
 </script>
 <style scoped>
+  .fj-name{
+    width: 60%;
+    word-break: break-all;
+    margin-bottom: 20px;
+  }
   .look-img{
     width: 200px;
     height: 200px;
   }
   >>> .el-form-item__label{
     width: 150px!important;
+  }
+  >>> .el-form-item__content{
+    margin-left: 150px!important;
   }
   >>> .el-input{
     width: 90%;

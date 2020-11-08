@@ -54,7 +54,7 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="附件"  v-if="look=='look'">
-        <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
+        <div v-for="item in fileList"><span class="inline-block fj-name">{{item.name}} </span><el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -307,8 +307,16 @@
   }
 </script>
 <style scoped>
+  .fj-name{
+    width: 60%;
+    word-break: break-all;
+    margin-bottom: 20px;
+  }
   >>> .el-form-item__label{
     width: 150px!important;
+  }
+  >>> .el-form-item__content{
+    margin-left: 150px!important;
   }
   >>> .el-input{
     width: 90%;

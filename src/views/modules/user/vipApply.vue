@@ -2,7 +2,7 @@
   <div class="mod-user">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item label="申请类型:">
-        <el-select clearable  v-model="dataForm.type" placeholder="请选择">
+        <el-select clearable v-model="dataForm.type" placeholder="请选择">
           <el-option
             v-for="item in lxList"
             :key="item.value"
@@ -135,11 +135,11 @@
         lxList:[
           {
             label:'个人',
-            vlaue:'1'
+            value: '1'
           },
           {
             label:'企业',
-            vlaue:'2'
+            value: '2'
           }
         ],
         dataList: [],

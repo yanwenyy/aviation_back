@@ -11,14 +11,17 @@
         <el-input :disabled="look=='look'" v-model="dataForm.title" placeholder="标题"></el-input>
       </el-form-item>
       <el-form-item label="标签:">
-        <el-select :disabled="look=='look'" clearable  v-model="dataForm.tagId" placeholder="请选择">
-          <el-option
-            v-for="item in bqList"
-            :key="item.tagId"
-            :label="item.tagName"
-            :value="item.tagId">
-          </el-option>
-        </el-select>
+        <!--<el-select :disabled="look=='look'" clearable  v-model="dataForm.tagId" placeholder="请选择">-->
+          <!--<el-option-->
+            <!--v-for="item in bqList"-->
+            <!--:key="item.tagId"-->
+            <!--:label="item.tagName"-->
+            <!--:value="item.tagId">-->
+          <!--</el-option>-->
+        <!--</el-select>-->
+        <el-checkbox-group v-model="dataForm.tagEntities">
+          <el-checkbox v-for="item in checkList" :disabled="look=='look'" :value="item.tagId" :label="item.tagId" :key="item.tagId">{{item.tagName}}</el-checkbox>
+        </el-checkbox-group>
       </el-form-item>
       <el-form-item label="状态" v-show="dataForm.id">
         <el-input disabled v-model="dataForm.status==0?'在线':'隐藏'" placeholder="状态"></el-input>
@@ -40,10 +43,10 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="附件"  v-if="look=='look'">
-        <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
+        <div v-for="item in fileList"><span class="inline-block fj-name">{{item.name}} </span><el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
       </el-form-item>
       <el-form-item label="内容">
-        <UEditor  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/notice/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
+        <UEditor :key="key"  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/notice/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
         <div class="inline-block html-div" v-html="dataForm.content"  v-if="look=='look'"></div>
       </el-form-item>
     </el-form>
@@ -81,12 +84,14 @@
         }
       };
       return {
+        key: 0,
         look:'',
         visible: false,
         dialogImageUrl: '',
         dialogVisible: false,
         fileList:[],
         bqList:[],
+        checkList: [],
         token:'',
         dataForm: {
           id: '',
@@ -94,7 +99,8 @@
           tagId: '',
           status:'',
           insertTime: '',
-          content: ''
+          content: '',
+          tagEntities:[],
         },
         value: '',
         dataRule: {
@@ -120,7 +126,8 @@
         tagId: '',
         status:'',
         insertTime: '',
-        content: ''
+        content: '',
+        tagEntities:[],
       };
       this.fileList=[];
       // 标签列表
@@ -133,6 +140,7 @@
       }).then(({data}) => {
         if (data && data.code === 10000) {
           this.bqList=data.data;
+          this.checkList=data.data;
         }
       })
     },
@@ -145,10 +153,20 @@
       },
       //获取富文本内容
       editorContent(modelname,index,content){
-        console.log(modelname)
         this.dataForm.content=content
       },
       init (id,look) {
+        this.key=this.key+1;
+        this.dataForm={
+          id: '',
+          title: '',
+          tagId: '',
+          status:'',
+          insertTime: '',
+          content: '',
+          tagEntities:[],
+        };
+        this.fileList=[];
         this.dataForm.id = id||0;
         this.look=look;
         this.token=this.$cookie.get('token');
@@ -167,6 +185,9 @@
                 this.dataForm.title =datas.title;
                 this.dataForm.content =datas.content;
                 this.dataForm.tagId =String(datas.tagId);
+                for(var j=0;j<datas.tagEntities.length;j++){
+                  this.dataForm.tagEntities.push(datas.tagEntities[j].tagId)
+                }
                 // if(datas.tagEntities){
                 //   for(var j=0;j<datas.tagEntities.length;j++){
                 //     this.dataForm.tagEntities.push(datas.tagEntities[j].tagId)
@@ -214,7 +235,8 @@
               data: this.$http.adornData({
                 'id': this.dataForm.id || undefined,
                 'title': this.dataForm.title,
-                'tagId': this.dataForm.tagId,
+                // 'tagId': this.dataForm.tagId,
+                'tagId': this.dataForm.tagEntities.join(","),
                 'tbAnnexActions': tbAnnexActions,
                 'content': this.dataForm.content,
               })
@@ -259,8 +281,16 @@
   }
 </script>
 <style scoped>
+  .fj-name{
+    width: 60%;
+    word-break: break-all;
+    margin-bottom: 20px;
+  }
   >>> .el-form-item__label{
     width: 150px!important;
+  }
+  >>> .el-form-item__content{
+    margin-left: 150px!important;
   }
   >>> .el-input{
     width: 90%;

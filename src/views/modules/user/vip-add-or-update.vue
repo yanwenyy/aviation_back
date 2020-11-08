@@ -11,7 +11,7 @@
       <el-form-item label="用户名">
         <el-input :disabled="look=='look'" v-model="dataForm.userName" placeholder="用户名"></el-input>
       </el-form-item>
-      <el-form-item label="单位/个人真实名称">
+      <el-form-item label="单位/个人真实名称" prop="nameDes">
         <el-input :disabled="look=='look'" v-model="dataForm.nameDes" placeholder="单位/个人真实名称"></el-input>
       </el-form-item>
       <el-form-item label="联系人">
@@ -51,7 +51,7 @@
           <el-image class="look-img" title="点击查看大图"
                     :src="dataForm.logo.indexOf('http')!=-1?dataForm.logo:logofront+dataForm.logo" :preview-src-list="srcList" >
           </el-image>
-          <i class="el-icon-error box-img-del" @click="dataForm.logo=''"></i>
+          <i v-if="look!='look'" class="el-icon-error box-img-del" @click="dataForm.logo=''"></i>
         </div>
         <div class="inline-block box-img"  v-if="dataForm.logo==''||!dataForm.logo">
           <el-upload :disabled="look=='look'"
@@ -142,6 +142,9 @@
           passwordConfirm: [
             { validator: validateComfirmPassword, trigger: 'blur' }
           ],
+          nameDes:[
+            { required: true, message: '单位/个人真实名称不能空', trigger: 'blur' }
+          ]
         }
       }
     },
@@ -208,7 +211,7 @@
                 this.dataForm.ifShow =datas.ifShow;
                 this.dataForm.insertTime = datas.insertTime;
                 this.dataForm.logo =datas.logo;
-                this.dataForm.content = datas.content;
+                this.dataForm.content = datas.introduction;
               }
             })
           }
@@ -233,7 +236,7 @@
                   'userRole': this.dataForm.userRole,
                   'password': this.dataForm.password,
                   'logo': this.dataForm.logo,
-                  'content': this.dataForm.content,
+                  'introduction': this.dataForm.content,
                 })
               }).then(({data}) => {
                 if (data && data.code == 10000) {
