@@ -50,7 +50,10 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="附件"  v-if="look=='look'">
-        <div v-for="item in fileList"><span class="inline-block fj-name">{{item.name}} </span><el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
+        <div v-for="item in fileList"><span class="inline-block fj-name">{{item.name}} </span><el-button type="warning" @click="down(item.data,item.name)">下载附件</el-button></div>
+      </el-form-item>
+      <el-form-item label="引文">
+        <el-input type="textarea" maxlength="300" show-word-limit :disabled="look=='look'" v-model="dataForm.preface" placeholder="引文"></el-input>
       </el-form-item>
       <el-form-item label="内容">
         <UEditor  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/trendmaterial/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
@@ -110,6 +113,7 @@
           content: '',
           tagEntities:[],
           levelTwoClass:[],
+          preface:''
         },
         value: '',
         dataRule: {
@@ -138,6 +142,7 @@
         createDate: '',
         content: '',
         levelTwoClass:[],
+        preface:''
       };
       this.fileList=[];
       // 标签列表
@@ -164,8 +169,8 @@
     },
     methods: {
       //下载附件
-      down (name){
-        var url='/jinding/download/'+name;
+      down (name,realName){
+        var url='/jinding/download/'+name+'?fileName='+realName;
         window.open(this.$http.adornUrl(url));
       },
       //获取富文本内容
@@ -197,6 +202,7 @@
                 }
                 this.dataForm.levelTwoClass=datas.levelTwoClass&&datas.levelTwoClass.split(",")||[];
                 this.dataForm.status = datas.status;
+                this.dataForm.preface = datas.preface;
                 this.dataForm.createDate =datas.insertTime;
                 var list=data.data.tbAnnexActions,i=0,len=list.length;
                 this.fileList=[];
@@ -245,6 +251,7 @@
                 'levelTwoClass': this.dataForm.levelTwoClass.join(','),
                 'tbAnnexActions': tbAnnexActions,
                 'content': this.dataForm.content,
+                'preface': this.dataForm.preface
               })
             }).then(({data}) => {
               if (data && data.code == 10000) {

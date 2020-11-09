@@ -48,7 +48,7 @@
       UE.Editor.prototype._bkGetActionUrl=UE.Editor.prototype.getActionUrl;
       UE.Editor.prototype.getActionUrl=function(action){
         if (action == 'uploadimage'){
-          return 'jinding/file/upload';    /* 这里填上你自己的上传图片的action */
+          return window.SITE_CONFIG['baseUrl']+'jinding/file/upload?token='+_this.$cookie.get('token');    /* 这里填上你自己的上传图片的action */
         }else{
           return this._bkGetActionUrl.call(this, action);
         }

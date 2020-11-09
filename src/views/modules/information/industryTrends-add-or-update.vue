@@ -64,6 +64,9 @@
       <el-form-item label="附件"  v-if="look=='look'">
         <div v-for="item in fileList"><span class="inline-block fj-name">{{item.name}} </span><el-button type="warning" @click="down(item.data,item.name)">下载附件</el-button></div>
       </el-form-item>
+      <el-form-item label="引文">
+        <el-input type="textarea" maxlength="300" show-word-limit :disabled="look=='look'" v-model="dataForm.preface" placeholder="引文"></el-input>
+      </el-form-item>
       <el-form-item label="内容">
         <UEditor :key="key"  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/trendmaterial/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
         <div class="inline-block html-div" v-html="dataForm.content"  v-if="look=='look'"></div>
@@ -122,6 +125,7 @@
           createDate: '',
           content: '',
           tagEntities:[],
+          preface:''
         },
         value: '',
         dataRule: {
@@ -151,6 +155,7 @@
         status: '',
         createDate: '',
         content: '',
+        preface:''
       };
       this.fileList=[];
       // 标签列表
@@ -169,17 +174,8 @@
     methods: {
       //下载附件
       down (name,realName){
-        var url='/jinding/download/'+name;
+        var url='/jinding/download/'+name+'?fileName='+realName;
         window.open(this.$http.adornUrl(url));
-        // let elink = document.createElement("a");
-        // elink.download = decodeURI(realName);  ;
-        // elink.style.display = "none";
-        // elink.href = this.$http.adornUrl(url);
-        // document.body.appendChild(elink);
-        // elink.click();
-        // console.log(elink)
-        // URL.revokeObjectURL(elink.href); // 释放URL 对象
-        // document.body.removeChild(elink);
       },
       //获取富文本内容
       editorContent(modelname,index,content){
@@ -197,6 +193,7 @@
           status: '',
           createDate: '',
           content: '',
+          preface:''
         };
         this.fileList=[];
         this.dataForm.id = id||0;
@@ -223,6 +220,7 @@
                 this.dataForm.coverImg = datas.coverImg;
                 this.dataForm.ifRecom =String(datas.ifRecom);
                 this.dataForm.status = datas.status;
+                this.dataForm.preface = datas.preface;
                 this.dataForm.createDate =datas.insertTime;
                 var list=data.data.tbAnnexActions,i=0,len=list.length;
                 this.fileList=[];
@@ -271,6 +269,7 @@
                 'ifRecom': this.dataForm.coverImg!=''?this.dataForm.ifRecom:'0',
                 'tbAnnexActions': tbAnnexActions,
                 'content': this.dataForm.content,
+                'preface': this.dataForm.preface
               })
             }).then(({data}) => {
               if (data && data.code == 10000) {

@@ -41,7 +41,7 @@
             </div>
           </el-form-item>
           <el-form-item label="回复附件"  v-show="dataForm.id">
-            <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
+            <div v-for="item in fileList">{{item.name}} <el-button type="warning" @click="down(item.data,item.name)">下载附件</el-button></div>
           </el-form-item>
         </div>
       </div>
@@ -83,8 +83,8 @@
     },
     methods: {
       //下载附件
-      down (name){
-        var url='/jinding/download/'+name;
+      down (name,realName){
+        var url='/jinding/download/'+name+'?fileName='+realName;
         window.open(this.$http.adornUrl(url));
       },
       //获取富文本内容

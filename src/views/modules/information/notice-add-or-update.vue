@@ -43,7 +43,7 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="附件"  v-if="look=='look'">
-        <div v-for="item in fileList"><span class="inline-block fj-name">{{item.name}} </span><el-button type="warning" @click="down(item.data)">下载附件</el-button></div>
+        <div v-for="item in fileList"><span class="inline-block fj-name">{{item.name}} </span><el-button type="warning" @click="down(item.data,item.name)">下载附件</el-button></div>
       </el-form-item>
       <el-form-item label="内容">
         <UEditor :key="key"  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/notice/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
@@ -146,9 +146,8 @@
     },
     methods: {
       //下载附件
-      down (name){
-        console.log(name)
-        var url='/jinding/download/'+name;
+      down (name,realName){
+        var url='/jinding/download/'+name+'?fileName='+realName;
         window.open(this.$http.adornUrl(url));
       },
       //获取富文本内容

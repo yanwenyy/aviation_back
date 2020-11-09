@@ -4,6 +4,12 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
+      <div class="city-view-title">用户属性</div>
+      <el-form-item label="用户属性">
+        <el-radio v-model="dataForm.userType" label="1">仅登录 </el-radio>
+        <el-radio v-model="dataForm.userType" label="2">登录并展示会员信息 </el-radio>
+        <el-radio v-model="dataForm.userType" label="3">仅展示会员信息</el-radio>
+      </el-form-item>
       <div class="city-view-title">会员登录设置</div>
       <el-form-item label="ID"  v-show="dataForm.id">
         <el-input disabled v-model="dataForm.id" placeholder="ID"></el-input>
@@ -19,6 +25,9 @@
       </el-form-item>
       <el-form-item label="电话">
         <el-input :disabled="look=='look'" v-model="dataForm.phone" placeholder="电话"></el-input>
+      </el-form-item>
+      <el-form-item label="网址">
+        <el-input :disabled="look=='look'" v-model="dataForm.interUrl" placeholder="网址"></el-input>
       </el-form-item>
       <el-form-item label="用户属性:">
         <el-select  :disabled="look=='look'" clearable  v-model="dataForm.userRole" placeholder="请选择">
@@ -132,7 +141,9 @@
           ifShow: '',
           insertTime: '',
           logo: '',
-          content:''
+          content:'',
+          userType:'',
+          interUrl:''
         },
         value: '',
         dataRule: {
@@ -162,7 +173,9 @@
         ifShow: '',
         insertTime: '',
         logo: '',
-        content: ''
+        content: '',
+        userType:'',
+        interUrl:''
       }
     },
     methods: {
@@ -185,7 +198,9 @@
           ifShow: '',
           insertTime: '',
           logo: '',
-          content: ''
+          content: '',
+          userType:'',
+          interUrl:''
           };
         this.dataForm.id = id||0;
         this.look=look||'';
@@ -212,6 +227,8 @@
                 this.dataForm.insertTime = datas.insertTime;
                 this.dataForm.logo =datas.logo;
                 this.dataForm.content = datas.introduction;
+                this.dataForm.userType = datas.userType;
+                this.dataForm.interUrl = datas.interUrl;
               }
             })
           }
@@ -237,6 +254,8 @@
                   'password': this.dataForm.password,
                   'logo': this.dataForm.logo,
                   'introduction': this.dataForm.content,
+                  'userType': this.dataForm.userType,
+                  'interUrl': this.dataForm.interUrl,
                 })
               }).then(({data}) => {
                 if (data && data.code == 10000) {

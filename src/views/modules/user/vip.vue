@@ -91,6 +91,15 @@
         label="电话">
       </el-table-column>
       <el-table-column
+        prop="userType"
+        header-align="center"
+        align="center"
+        label="用户类型">
+        <template slot-scope="scope">
+          {{ scope.row.userType==1?'仅登录 ':scope.row.userType==2?'登录并展示会员信息  ':'仅展示会员信息'}}
+        </template>
+      </el-table-column>
+      <el-table-column
         prop="userRole"
         header-align="center"
         align="center"
@@ -104,7 +113,7 @@
         align="center"
         label="会员展示">
         <template slot-scope="scope">
-          {{ scope.row.ifShow==1?'展示':'隐藏'}}<el-button @click="ifOnLineVip(scope.row.id,scope.row.ifShow)">{{ scope.row.ifShow==1?'隐藏':'展示'}}</el-button>
+          {{ scope.row.ifShow==1?'展示':'隐藏'}}
         </template>
       </el-table-column>
       <el-table-column
@@ -112,7 +121,7 @@
         align="center"
         label="登陆状态">
         <template slot-scope="scope">
-          {{ scope.row.state==1?'启用':'停用'}}<el-button @click="ifOnLineLogin(scope.row.id,scope.row.state)">{{ scope.row.state==1?'停用':'启用'}}</el-button>
+          {{ scope.row.state==1?'启用':'停用'}}
         </template>
       </el-table-column>
       <el-table-column
@@ -128,6 +137,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
+          <el-button type="text" size="small"  @click="ifOnLineVip(scope.row.id,scope.row.ifShow)">{{ scope.row.ifShow==1?'隐藏':'展示'}}</el-button>
+          <el-button type="text" size="small"  @click="ifOnLineLogin(scope.row.id,scope.row.state)">{{ scope.row.state==1?'停用':'启用'}}</el-button>
           <el-button v-if="" type="text" size="small" @click="addOrUpdateHandle(scope.row.id,'look')">查看</el-button>
           <el-button v-if="" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button v-if="" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
