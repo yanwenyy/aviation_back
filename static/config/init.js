@@ -13,7 +13,7 @@
       window.SITE_CONFIG.cdnUrl + '/static/plugins/echarts-3.8.5/echarts.common.min.js',
       // 插件 - ueditor
       window.SITE_CONFIG.cdnUrl + '/static/plugins/ueditor/ueditor.config.js',
-      window.SITE_CONFIG.cdnUrl + '/static/plugins/ueditor/ueditor.all.min.js',
+      window.SITE_CONFIG.cdnUrl + '/static/plugins/ueditor/ueditor.all.js',
       window.SITE_CONFIG.cdnUrl + '/static/plugins/ueditor/lang/zh-cn/zh-cn.js',
       window.SITE_CONFIG.cdnUrl + '/static/plugins/ueditor/jquery-2.2.3.min.js',
       // 业务

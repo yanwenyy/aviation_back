@@ -45,14 +45,14 @@
         serverUrl: window.SITE_CONFIG['baseUrl']+"/ueditor/exec?token="+_this.$cookie.get('token'),
         zIndex:99999999
       });
-      UE.Editor.prototype._bkGetActionUrl=UE.Editor.prototype.getActionUrl;
-      UE.Editor.prototype.getActionUrl=function(action){
-        if (action == 'uploadimage'){
-          return window.SITE_CONFIG['baseUrl']+'jinding/file/upload?token='+_this.$cookie.get('token');    /* 这里填上你自己的上传图片的action */
-        }else{
-          return this._bkGetActionUrl.call(this, action);
-        }
-      };
+      // UE.Editor.prototype._bkGetActionUrl=UE.Editor.prototype.getActionUrl;
+      // UE.Editor.prototype.getActionUrl=function(action){
+      //   if (action == 'uploadimage'){
+      //     return window.SITE_CONFIG['baseUrl']+'jinding/file/upload?token='+_this.$cookie.get('token');    /* 这里填上你自己的上传图片的action */
+      //   }else{
+      //     return this._bkGetActionUrl.call(this, action);
+      //   }
+      // };
       this.editor.ready(function() {
         if(_this.val!=null&&_this.val!=undefined){
           // _this.$emit('ready', _this.editor);
