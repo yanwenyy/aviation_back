@@ -4,18 +4,11 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
-      <div class="city-view-title">用户属性</div>
+      <div class="city-view-title">基础信息</div>
       <el-form-item label="用户属性">
         <el-radio v-model="dataForm.userType" label="1">仅登录 </el-radio>
         <el-radio v-model="dataForm.userType" label="2">登录并展示会员信息 </el-radio>
         <el-radio v-model="dataForm.userType" label="3">仅展示会员信息</el-radio>
-      </el-form-item>
-      <div class="city-view-title">会员登录设置</div>
-      <el-form-item label="ID"  v-show="dataForm.id">
-        <el-input disabled v-model="dataForm.id" placeholder="ID"></el-input>
-      </el-form-item>
-      <el-form-item label="用户名">
-        <el-input :disabled="look=='look'" v-model="dataForm.userName" placeholder="用户名"></el-input>
       </el-form-item>
       <el-form-item label="单位/个人真实名称" prop="nameDes">
         <el-input :disabled="look=='look'" v-model="dataForm.nameDes" placeholder="单位/个人真实名称"></el-input>
@@ -24,61 +17,72 @@
         <el-input :disabled="look=='look'" v-model="dataForm.contact" placeholder="联系人"></el-input>
       </el-form-item>
       <el-form-item label="电话">
-        <el-input :disabled="look=='look'" v-model="dataForm.phone" placeholder="电话"></el-input>
+        <el-input :disabled="look=='look'||dataForm.userType==2" v-model="dataForm.phone" placeholder="电话"></el-input>
       </el-form-item>
-      <el-form-item label="网址">
-        <el-input :disabled="look=='look'" v-model="dataForm.interUrl" placeholder="网址"></el-input>
-      </el-form-item>
-      <el-form-item label="用户属性:">
-        <el-select  :disabled="look=='look'" clearable  v-model="dataForm.userRole" placeholder="请选择">
-          <el-option
-            v-for="item in sxList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="密码" prop="password">
-        <el-input type="password" :disabled="look=='look'" v-model="dataForm.password" placeholder="密码"></el-input>
-      </el-form-item>
-      <el-form-item label="确认密码" prop="passwordConfirm">
-        <el-input type="password" :disabled="look=='look'" v-model="dataForm.passwordConfirm" placeholder="确认密码"></el-input>
-      </el-form-item>
-      <el-form-item label="登陆状态" v-show="dataForm.id">
-        <el-input  :disabled="look=='look'||dataForm.id!=0" v-model="dataForm.state==1?'正常':'冻结'" placeholder="登陆状态"></el-input>
-      </el-form-item>
-      <el-form-item label="会员展示状态"  v-show="dataForm.id">
-        <el-input :disabled="look=='look'||dataForm.id!=0" v-model="dataForm.ifShow==1?'展示':'隐藏'" placeholder="会员展示状态"></el-input>
-      </el-form-item>
-      <el-form-item label="添加时间"  v-show="dataForm.id">
-        <el-input :disabled="look=='look'||dataForm.id!=0" v-model="dataForm.insertTime" placeholder="添加时间"></el-input>
-      </el-form-item>
-      <div class="city-view-title">会员信息</div>
-      <el-form-item label="会员logo">
-        <div class="inline-block box-img" v-if="dataForm.logo&&dataForm.logo!=''">
-          <el-image class="look-img" title="点击查看大图"
-                    :src="dataForm.logo.indexOf('http')!=-1?dataForm.logo:logofront+dataForm.logo" :preview-src-list="srcList" >
-          </el-image>
-          <i v-if="look!='look'" class="el-icon-error box-img-del" @click="dataForm.logo=''"></i>
-        </div>
-        <div class="inline-block box-img"  v-if="dataForm.logo==''||!dataForm.logo">
-          <el-upload :disabled="look=='look'"
-                     :show-file-list="!dataForm.id&& dataForm.logo==''"
-                     :headers="{'token':token}"
-                     :action="this.$http.adornUrl('/jinding/file/upload')"
-                     :on-success="handleChange"
-                     :on-error="handleChange"
-                     list-type="picture-card"
-                     :on-remove="handleRemove">
-            <i class="el-icon-plus"></i>
-          </el-upload>
-        </div>
-      </el-form-item>
-      <el-form-item label="会员简介">
-        <UEditor  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/trendmaterial/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
-        <div class="inline-block html-div" v-html="dataForm.content"  v-if="look=='look'"></div>
-      </el-form-item>
+      <div class="city-view-title" v-show="dataForm.id&&dataForm.userType!=3">会员登录设置</div>
+      <div v-show="dataForm.id&&dataForm.userType!=3">
+        <el-form-item label="ID"  v-show="dataForm.id">
+          <el-input disabled v-model="dataForm.id" placeholder="ID"></el-input>
+        </el-form-item>
+        <el-form-item label="登录用户名">
+          <el-input :disabled="look=='look'" v-model="dataForm.userName" placeholder="登录用户名"></el-input>
+        </el-form-item>
+        <el-form-item label="用户属性:">
+          <el-select  :disabled="look=='look'" clearable  v-model="dataForm.userRole" placeholder="请选择">
+            <el-option
+              v-for="item in sxList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input type="password" :disabled="look=='look'" v-model="dataForm.password" placeholder="密码"></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码" prop="passwordConfirm">
+          <el-input type="password" :disabled="look=='look'" v-model="dataForm.passwordConfirm" placeholder="确认密码"></el-input>
+        </el-form-item>
+        <el-form-item label="登陆状态" v-show="dataForm.id">
+          <el-input  :disabled="look=='look'||dataForm.id!=0" v-model="dataForm.state==1?'正常':'冻结'" placeholder="登陆状态"></el-input>
+        </el-form-item>
+        <el-form-item label="会员展示状态"  v-show="dataForm.id">
+          <el-input :disabled="look=='look'||dataForm.id!=0" v-model="dataForm.ifShow==1?'展示':'隐藏'" placeholder="会员展示状态"></el-input>
+        </el-form-item>
+        <el-form-item label="添加时间"  v-show="dataForm.id">
+          <el-input :disabled="look=='look'||dataForm.id!=0" v-model="dataForm.insertTime" placeholder="添加时间"></el-input>
+        </el-form-item>
+      </div>
+      <div class="city-view-title" v-show="dataForm.id&&dataForm.userType!=1">会员信息</div>
+      <div v-show="dataForm.id&&dataForm.userType!=1">
+        <el-form-item label="网址">
+          <el-input :disabled="look=='look'" v-model="dataForm.interUrl" placeholder="网址"></el-input>
+        </el-form-item>
+        <el-form-item label="会员logo">
+          <div class="inline-block box-img" v-if="dataForm.logo&&dataForm.logo!=''">
+            <el-image class="look-img" title="点击查看大图"
+                      :src="dataForm.logo.indexOf('http')!=-1?dataForm.logo:logofront+dataForm.logo" :preview-src-list="srcList" >
+            </el-image>
+            <i v-if="look!='look'" class="el-icon-error box-img-del" @click="dataForm.logo=''"></i>
+          </div>
+          <div class="inline-block box-img"  v-if="dataForm.logo==''||!dataForm.logo">
+            <el-upload :disabled="look=='look'"
+                       :show-file-list="!dataForm.id&& dataForm.logo==''"
+                       :headers="{'token':token}"
+                       :action="this.$http.adornUrl('/jinding/file/upload')"
+                       :on-success="handleChange"
+                       :on-error="handleChange"
+                       list-type="picture-card"
+                       :on-remove="handleRemove">
+              <i class="el-icon-plus"></i>
+            </el-upload>
+          </div>
+        </el-form-item>
+        <el-form-item label="会员简介">
+          <UEditor  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/trendmaterial/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
+          <div class="inline-block html-div" v-html="dataForm.content"  v-if="look=='look'"></div>
+        </el-form-item>
+      </div>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>

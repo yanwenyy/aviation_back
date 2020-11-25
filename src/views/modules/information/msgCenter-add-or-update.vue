@@ -56,7 +56,7 @@
         <el-input type="textarea" maxlength="300" show-word-limit :disabled="look=='look'" v-model="dataForm.preface" placeholder="引文"></el-input>
       </el-form-item>
       <el-form-item label="内容">
-        <UEditor  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/trendmaterial/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
+        <UEditor  :key="key" v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/trendmaterial/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
         <div class="inline-block html-div" v-html="dataForm.content"  v-if="look=='look'"></div>
       </el-form-item>
     </el-form>
@@ -94,6 +94,7 @@
         }
       };
       return {
+        key: 0,
         look:'',
         visible: false,
         dialogImageUrl: '',
@@ -145,27 +146,7 @@
         preface:''
       };
       this.fileList=[];
-      // 标签列表
-      this.$http({
-        url: this.$http.adornUrl('/biz/tag/select/list'),
-        method: 'GET',
-        params: this.$http.adornParams({
-          'type': '2'
-        })
-      }).then(({data}) => {
-        if (data && data.code === 10000) {
-          this.checkList=data.data;
-        }
-      })
-      //关联列表
-      this.$http({
-        url: this.$http.adornUrl('/aviation/select/list'),
-        method: 'GET',
-      }).then(({data}) => {
-        if (data && data.code === 10000) {
-          this.relationCheck=data.data;
-        }
-      })
+
     },
     methods: {
       //下载附件
@@ -178,6 +159,40 @@
         this.dataForm.content=content
       },
       init (id,look) {
+        // 标签列表
+        this.$http({
+          url: this.$http.adornUrl('/biz/tag/select/list'),
+          method: 'GET',
+          params: this.$http.adornParams({
+            'type': '2'
+          })
+        }).then(({data}) => {
+          if (data && data.code === 10000) {
+            this.checkList=data.data;
+          }
+        })
+        //关联列表
+        this.$http({
+          url: this.$http.adornUrl('/aviation/select/list'),
+          method: 'GET',
+        }).then(({data}) => {
+          if (data && data.code === 10000) {
+            this.relationCheck=data.data;
+          }
+        })
+        this.dataForm={
+          id: '',
+          title: '',
+          source: '',
+          tagEntities:[],
+          status: '',
+          createDate: '',
+          content: '',
+          levelTwoClass:[],
+          preface:''
+        };
+        this.fileList=[];
+        this.key=this.key+1;
         this.dataForm.id = id||0;
         this.look=look;
         this.token=this.$cookie.get('token');

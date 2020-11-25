@@ -169,7 +169,7 @@
           email: '',
           createTime: '',
         }
-        this.$refs.child.reset()
+        this.getDataList()
       },
       // 获取数据列表
       getDataList () {

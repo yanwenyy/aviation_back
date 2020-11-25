@@ -158,18 +158,6 @@
         preface:''
       };
       this.fileList=[];
-      // 标签列表
-      this.$http({
-        url: this.$http.adornUrl('/biz/tag/select/list'),
-        method: 'GET',
-        params: this.$http.adornParams({
-          'type': '1'
-        })
-      }).then(({data}) => {
-        if (data && data.code === 10000) {
-          this.checkList=data.data;
-        }
-      })
     },
     methods: {
       //下载附件
@@ -182,6 +170,18 @@
         this.dataForm.content=content
       },
       init (id,look) {
+        // 标签列表
+        this.$http({
+          url: this.$http.adornUrl('/biz/tag/select/list'),
+          method: 'GET',
+          params: this.$http.adornParams({
+            'type': '1'
+          })
+        }).then(({data}) => {
+          if (data && data.code === 10000) {
+            this.checkList=data.data;
+          }
+        })
         this.key=this.key+1;
         this.dataForm={
           id: '',

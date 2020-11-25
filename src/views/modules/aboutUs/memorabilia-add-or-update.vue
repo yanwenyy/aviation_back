@@ -37,7 +37,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="内容">
-        <UEditor  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/bigevent/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
+        <UEditor :key="key"  v-if="look!='look'"  class="editor inline-block" :contentUrl='"/biz/bigevent/info/"'  :id='"editor_tr_original"' :index="0" :econtent="dataForm.content"  :val="dataForm.id" :modelname="'tr_original'" @func="editorContent" ></UEditor>
         <div class="inline-block html-div" v-html="dataForm.content"  v-if="look=='look'"></div>
       </el-form-item>
     </el-form>
@@ -75,6 +75,7 @@
         }
       };
       return {
+        key: 0,
         look:'',
         visible: false,
         dialogImageUrl: '',
@@ -117,14 +118,7 @@
       }
     },
     activated (){
-      this.dataForm={
-        id:'',
-        title: '',
-        releaseDate: '',
-        insertTime: '',
-        status: '',
-        content:'',
-      }
+
     },
     methods: {
       //获取富文本内容
@@ -132,6 +126,15 @@
         this.dataForm.content=content
       },
       init (id,look) {
+        this.dataForm={
+          id:'',
+          title: '',
+          releaseDate: '',
+          insertTime: '',
+          status: '',
+          content:'',
+        }
+        this.key=this.key+1;
         this.dataForm.id = id||0;
         this.look=look;
         this.token=this.$cookie.get('token');

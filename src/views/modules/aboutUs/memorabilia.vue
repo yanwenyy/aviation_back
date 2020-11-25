@@ -55,6 +55,9 @@
         prop="releaseDate"
         align="center"
         label="时间">
+        <template slot-scope="scope">
+          {{ scope.row.releaseDate.split(" ")[0]}}
+        </template>
       </el-table-column>
       <el-table-column
         prop="clickNum"
@@ -67,13 +70,14 @@
         header-align="center"
         align="center"
         label="添加时间">
+
       </el-table-column>
       <el-table-column
         prop="status"
         align="center"
         label="状态">
         <template slot-scope="scope">
-          {{ scope.row.status==0?'在线':'隐藏'}}<el-button @click="ifOnLine(scope.row.id,scope.row.status)"">{{ scope.row.status==0?'隐藏':'在线'}}</el-button>
+          {{ scope.row.status==0?'在线':'隐藏'}}
         </template>
       </el-table-column>
       <el-table-column
@@ -86,6 +90,7 @@
           <el-button v-if="" type="text" size="small" @click="addOrUpdateHandle(scope.row.id,'look')">查看</el-button>
           <el-button v-if="" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button v-if="" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button type="text" size="small"  @click="ifOnLine(scope.row.id,scope.row.status)"">{{ scope.row.status==0?'隐藏':'在线'}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -170,7 +175,7 @@
           status:'',
           dateStr:''
         }
-        this.$refs.child.reset()
+        this.getDataList()
       },
       // 获取数据列表
       getDataList () {
