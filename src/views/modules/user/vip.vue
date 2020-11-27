@@ -26,6 +26,16 @@
           end-placeholder="结束日期">
         </el-date-picker>
       </el-form-item>
+      <el-form-item label="用户类型:">
+        <el-select clearable  v-model="dataForm.userType" placeholder="请选择">
+          <el-option
+            v-for="item in lxList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="全部用户属性:">
         <el-select clearable  v-model="dataForm.userRole" placeholder="请选择">
           <el-option
@@ -174,7 +184,22 @@
           ifShow: '',
           state: '',
           createTime: '',
+          userType:''
         },
+        lxList:[
+          {
+            label:'仅登录',
+            value:'1'
+          },
+          {
+            label:'登录并展示会员信息',
+            value:'2'
+          },
+          {
+            label:'仅展示会员信息',
+            value:'3'
+          }
+        ],
         sxList:[
           {
             label:'管理员',
@@ -273,6 +298,7 @@
           ifShow: '',
           state: '',
           createTime: '',
+          userType:''
         }
         this.$refs.child.reset()
       },
@@ -297,6 +323,7 @@
             'userRole': this.dataForm.userRole,
             'ifShow': this.dataForm.ifShow,
             'state': this.dataForm.state,
+            'userType': this.dataForm.userType,
             'startTime': createTimeStart,
             'endTime': createTimeEnd,
           })
