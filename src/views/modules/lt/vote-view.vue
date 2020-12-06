@@ -8,14 +8,14 @@
       @selection-change="selectionChangeHandle"
       style="width: 100%;">
       <el-table-column
-        prop="id"
+        type="index"
         header-align="center"
         align="center"
         width="80"
         label="序号">
       </el-table-column>
       <el-table-column
-        prop="userId"
+        prop="nameDes"
         align="center"
         label="投票人">
       </el-table-column>

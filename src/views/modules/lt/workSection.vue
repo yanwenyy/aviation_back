@@ -45,7 +45,7 @@
         align="center"
         label="状态">
         <template slot-scope="scope">
-          {{ scope.row.status==0?'显示 ':'隐藏'}}<el-button @click="ifOnLine(scope.row.id,scope.row.status)">{{ scope.row.status==0?'隐藏':'显示 '}}</el-button>
+          {{ scope.row.status==0?'显示 ':'隐藏'}}
         </template>
       </el-table-column>
       <el-table-column
@@ -61,6 +61,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
+          <el-button type="text" size="small"  @click="ifOnLine(scope.row.id,scope.row.status)">{{ scope.row.status==0?'隐藏':'显示 '}}</el-button>
           <el-button v-if="" type="text" size="small" @click="openDialog(scope.row.id,'编辑板块'),dataForm.addName=scope.row.name">修改</el-button>
           <el-button v-if="" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
@@ -184,7 +185,7 @@
           status: '',
           name: '',
         }
-        this.$refs.child.reset()
+        this.getDataList();
       },
       // 获取数据列表
       getDataList () {

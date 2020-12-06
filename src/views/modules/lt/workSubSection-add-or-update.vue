@@ -31,7 +31,7 @@
         <el-form-item label="选择开放会员" v-show="dataForm.purviewType==1">
           <el-button v-show="look!='look'" type="primary" @click="dialogVisible=true">点击选择</el-button>
           <el-table
-            v-show="dataForm.id"
+            v-show="dataForm.id||dataForm.users"
             :data="dataForm.users"
             border
             style="width: 100%;margin: 20px 0">
@@ -215,6 +215,9 @@
       this.$http({
         url: this.$http.adornUrl('/biz/jobmodel/select/list'),
         method: 'GET',
+        params: this.$http.adornParams({
+          'status': 1,
+        })
       }).then(({data}) => {
         this.typeList = data.data
       });
@@ -242,7 +245,16 @@
         this.dataForm.content=content
       },
       init (id,look) {
-        console.log(id)
+        this.dataForm={
+          id: '',
+          pid: '',
+          childName: '',
+          purviewType:'',
+          introduction: '',
+          status: '',
+          createDate:'',
+          users:[]
+        };
         this.dataForm.id = id||0;
         this.look=look;
         this.visible = true;

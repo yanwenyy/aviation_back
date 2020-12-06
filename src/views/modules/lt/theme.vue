@@ -4,7 +4,7 @@
       <el-form-item>
         <el-button type="primary" @click="addOrUpdateHandle()">新增</el-button>
         <el-button type="primary" @click="deleteHandle()"  :disabled="dataListSelections.length <= 0">批量删除</el-button>
-        <el-button type="primary" @click="openDialog('','新增板块')"  :disabled="dataListSelections.length <= 0">批量转移</el-button>
+        <el-button type="primary" @click="childModelId='',modelId='',openDialog('','新增板块')"  :disabled="dataListSelections.length <= 0">批量转移</el-button>
       </el-form-item>
       <el-form-item>
         <el-input v-model="dataForm.id" placeholder="ID" clearable></el-input>
@@ -78,7 +78,7 @@
         label="ID">
       </el-table-column>
       <el-table-column
-        prop="pname"
+        prop="name"
         align="center"
         label="板块名称">
       </el-table-column>
@@ -102,7 +102,10 @@
         align="center"
         label="属性设置">
         <template slot-scope="scope">
-          {{ scope.row.ifHigh=='1'?'高亮':''}}{{ scope.row.ifLocking=='1'?'锁定':''}}{{ scope.row.ifTop=='1'?'置顶':''}}<el-button @click="">设置</el-button>
+          {{ scope.row.ifHigh=='1'?'高亮':''}}
+          {{ scope.row.ifLocking=='1'?'锁定':''}}
+          {{ scope.row.ifTop=='1'?'置顶':''}}
+          <el-button @click="attributeVisible=true,openAttr(scope.row)">设置</el-button>
         </template>
       </el-table-column>
       <el-table-column
@@ -130,7 +133,7 @@
         align="center"
         label="状态">
         <template slot-scope="scope">
-          {{ scope.row.status==0?'在线':'隐藏'}}<el-button @click="">{{ scope.row.status==0?'隐藏':'在线'}}</el-button>
+          {{ scope.row.status==0?'在线':'隐藏'}}
         </template>
       </el-table-column>
       <el-table-column
@@ -146,6 +149,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
+          <el-button type="text" size="small" @click="ifOnLine(scope.row.id,scope.row.status)">{{ scope.row.status==0?'隐藏':'在线'}}</el-button>
           <el-button v-if="" type="text" size="small" @click="addOrUpdateHandle(scope.row.id,'look')">查看</el-button>
           <el-button v-if="" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button v-if="" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
@@ -168,22 +172,22 @@
     <el-dialog title="批量转移" :visible.sync="dialogFormVisible">
       <el-form>
         <el-form-item label="一级板块">
-          <el-select clearable  v-model="dataForm.type" placeholder="请选择">
+          <el-select clearable @change="getTwo"  v-model="dataForm.modelId" placeholder="请选择">
             <el-option
-              v-for="item in typeList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+              v-for="(item,index) in typeList"
+              :key="index"
+              :label="item.name"
+              :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="子板块">
-          <el-select clearable  v-model="dataForm.type" placeholder="请选择">
+          <el-select clearable  @change="getTwoName"  v-model="dataForm.childModelId" placeholder="请选择">
             <el-option
-              v-for="item in typeList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+              v-for="(item,index) in typeTwoList"
+              :key="index"
+              :label="item.childName"
+              :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -191,6 +195,17 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">关闭</el-button>
         <el-button @click="transfer()" type="primary">确定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="设置属性" :visible.sync="attributeVisible">
+      <el-checkbox-group v-model="checkList">
+        <el-checkbox label="置顶"></el-checkbox>
+        <el-checkbox label="锁定"></el-checkbox>
+        <el-checkbox label="高亮"></el-checkbox>
+      </el-checkbox-group>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="attributeVisible = false">关闭</el-button>
+        <el-button @click="setAttribute()" type="primary">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -214,9 +229,16 @@
           measure: '',
           status: '',
           createTime: '',
+          modelId:'',
+          childModelId:''
         },
+        oneName:'',
+        twoName:"",
+        checkList:[],
         dialogTitle:'',
         dialogFormVisible:false,
+        attributeVisible:false,
+        attrForm:'',
         ztList:[
           {
             label:'在线',
@@ -259,31 +281,122 @@
       this.$http({
         url: this.$http.adornUrl('/biz/jobmodel/select/list'),
         method: 'GET',
+        params: this.$http.adornParams({
+          'status': 1,
+        })
       }).then(({data}) => {
         this.typeList = data.data
       });
-      //子板块下拉列表
-      this.$http({
-        url: this.$http.adornUrl('/biz/jobchildmodel/select/list'),
-        method: 'GET',
-      }).then(({data}) => {
-        this.typeTwoList = data.data
-      });
+
     },
     methods: {
+      //打开属性设置
+      openAttr(form){
+        this.checkList=[];
+        this.attrForm=form;
+        if(form.ifHigh==1){
+          this.checkList.push('高亮')
+        }
+        if(form.ifLocking==1){
+          this.checkList.push('锁定')
+        }
+        if(form.ifTop==1){
+          this.checkList.push('置顶')
+        }
+      },
+      //属性设置
+      setAttribute(){
+        this.$http({
+          url: this.$http.adornUrl(`/biz/theme/attribute`),
+          method: 'post',
+          data: this.$http.adornData({
+            'id': this.attrForm.id,
+            'ifHigh': this.checkList.indexOf('高亮')!=-1?'1':'0',
+            'ifLocking':this.checkList.indexOf('锁定')!=-1?'1':'0',
+            'ifTop': this.checkList.indexOf('置顶')!=-1?'1':'0',
+          })
+        }).then(({data}) => {
+          if (data && data.code == 10000) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1500,
+              onClose: () => {
+                this.attributeVisible = false;
+                this.getDataList()
+              }
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      },
+      //上线下线
+      ifOnLine (id,status) {
+        this.$http({
+          url: this.$http.adornUrl(`/biz/theme/info/${id}/${status==0?'1':'0'}`),
+          method: 'GET'
+        }).then(({data}) => {
+          if (data && data.code === 10000) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1500,
+              onClose: () => {
+                this.getDataList()
+              }
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      },
+      //一级版块选择时
+      getTwo(val){
+        if(this.dataForm.modelId!=''){
+          this.typeTwoList =[];
+          this.dataForm.childModelId='';
+          this.oneName = val ? this.typeList.find(ele => ele.id === val).name : '';
+          //子板块下拉列表
+          this.$http({
+            url: this.$http.adornUrl('/biz/jobchildmodel/select/list'),
+            method: 'GET',
+            params: this.$http.adornParams({
+              'id': this.dataForm.modelId,
+              'status': 1,
+            })
+          }).then(({data}) => {
+            this.typeTwoList = data.data
+          });
+        }
+      },
+      //获取二级版块名字
+      getTwoName(val){
+        this.twoName = val ? this.typeTwoList.find(ele => ele.id === val).childName : '';
+      },
       //批量转移
       transfer(){
-        var ids =this.dataListSelections.map(item => {
-          return item.id
-        });
-        this.$confirm(`您确定要将选中的${ids.length}条数据转移至“一级名称 — 二级名称”板块下吗？删除后数据将无法恢复！`, '提示', {
+        // var ids =this.dataListSelections.map(item => {
+        //   return item.id
+        // });
+        var ids=[],list=this.dataListSelections,i=0,len=list.length;
+        for(;i<len;i++){
+          ids.push(list[i].id)
+        }
+        console.log(ids)
+        this.$confirm(`您确定要将选中的${ids.length}条数据转移至“${this.oneName} — ${this.twoName}”板块下吗？删除后数据将无法恢复！`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/biz/classlevel/delete/'+ids),
-            method: 'GET',
+            url: this.$http.adornUrl('/biz/theme/bach/udpate'),
+            method: 'POST',
+            data: this.$http.adornData({
+              'childModelId': this.dataForm.childModelId,
+              'modelId': this.dataForm.modelId,
+              'id':ids,
+            },false)
           }).then(({data}) => {
             if (data && data.code === 10000) {
               this.$message({
@@ -291,6 +404,7 @@
                 type: 'success',
                 duration: 1500,
                 onClose: () => {
+                  this.dialogFormVisible = false
                   this.getDataList()
                 }
               })
@@ -317,7 +431,7 @@
           status: '',
           createTime: '',
         }
-        this.$refs.child.reset()
+        this.getDataList()
       },
       // 获取数据列表
       getDataList () {

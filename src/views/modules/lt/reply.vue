@@ -26,12 +26,15 @@
       <el-form-item>
         <el-date-picker
           v-model="dataForm.createTime"
-          type="date"
-          placeholder="回复时间">
+          type="daterange"
+          range-separator="一"
+          value-format="yyyy-MM-dd"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getDataList()">查询</el-button>
+        <el-button @click="pageIndex=1,getDataList()">查询</el-button>
         <el-button @click="resetForm()">重置</el-button>
       </el-form-item>
     </el-form>
@@ -161,7 +164,7 @@
           userName: '',
           createTime:'',
         }
-        this.$refs.child.reset()
+        this.getDataList()
       },
       // 获取数据列表
       getDataList () {

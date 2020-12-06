@@ -141,6 +141,9 @@
       this.$http({
         url: this.$http.adornUrl('/biz/jobmodel/select/list'),
         method: 'GET',
+        params: this.$http.adornParams({
+          'status': 1,
+        })
       }).then(({data}) => {
         this.typeList = data.data
       });
@@ -160,6 +163,7 @@
             method: 'GET',
             params: this.$http.adornParams({
               'id': this.dataForm.jobModelId,
+              'status': 1,
             })
           }).then(({data}) => {
             this.typeTwoList = data.data

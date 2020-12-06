@@ -79,7 +79,7 @@
         align="center"
         label="状态">
         <template slot-scope="scope">
-          {{ scope.row.status==0?'在线':'隐藏'}}<el-button @click="ifOnLine(scope.row.id,scope.row.status)">{{ scope.row.status==0?'隐藏':'在线'}}</el-button>
+          {{ scope.row.status==0?'在线':'隐藏'}}
         </template>
       </el-table-column>
       <el-table-column
@@ -95,6 +95,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
+          <el-button type="text" size="small" @click="ifOnLine(scope.row.id,scope.row.status)">{{ scope.row.status==0?'隐藏':'在线'}}</el-button>
           <el-button v-if="" type="text" size="small" @click="addOrUpdateHandle(scope.row.id,'look')">查看</el-button>
           <el-button v-if="" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button v-if="" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
@@ -192,7 +193,7 @@
           status: '',
           purviewType: '',
         }
-        this.$refs.child.reset()
+        this.getDataList()
       },
       // 获取数据列表
       getDataList () {
